@@ -192,7 +192,7 @@ const UserProfile = ({ onNavigateToHome, onLogout, onNavigateToChatForum }) => {
           setUserData({ ...userData, contact: newContact });
           setIsEditing(false);
           setConfirmationModalVisible(false);
-          setSuccess("Changes saved successfully!");
+          setSuccess("Changes saved successfully");
           setTimeout(() => {
             setSuccess(null);
           }, 5000); // 5 seconds
@@ -553,15 +553,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontFamily: "Roboto",
   },
-  nameText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#6B4E31",
-    marginBottom: 10,
-    textAlign: "center",
-    textTransform: "capitalize",
-    fontFamily: "Roboto",
-  },
   editButton: {
     backgroundColor: "#FFD700",
     paddingVertical: 10,
@@ -573,6 +564,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
+    marginTop: 10,
   },
   editButtonText: {
     color: "#6B4E31",

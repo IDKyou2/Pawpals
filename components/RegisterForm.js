@@ -93,8 +93,8 @@ const RegisterForm = ({ onLoginClick }) => {
       console.log("Full name:", fullName);
       console.log("Email:", email);
       console.log("Contact no:", contact);
-      //console.log("Email: ", email.replace(/(.{2})(.*)(@.*)/, "$1***$3"));               // masked
-      //console.log("Contact no: ", contact.slice(0, 3) + "****" + contact.slice(-2));      // masked
+      //console.log("Email: ", email.replace(/(.{2})(.*)(@.*)/, "$1***$3"));               // mask email
+      //console.log("Contact no: ", contact.slice(0, 3) + "****" + contact.slice(-2));      // mask number
       console.log("Address:", address);
       console.log("Password received.");
     }
@@ -116,7 +116,6 @@ const RegisterForm = ({ onLoginClick }) => {
       const regex = /^09\d{9}$/;
       return regex.test(number);
     };
-
 
     // Basic validation
     if (

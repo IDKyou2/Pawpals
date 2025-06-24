@@ -613,6 +613,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFD700',
     borderRadius: 10,
     //marginBottom: 5,
+    //objectFit: 'contain',
   },
   selectedImageIcon: {
     width: 200,

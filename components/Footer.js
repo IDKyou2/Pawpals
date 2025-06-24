@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 
 const Footer = ({
@@ -7,7 +7,11 @@ const Footer = ({
     handleNotificationClick,
     newChatsCount,
     newPostsCount,
+    //initialChatsCount = 0,
 }) => {
+    //const [newChatsCount, setNewChatsCount] = useState(initialChatsCount);
+  
+
     return (
         <View style={styles.footer}>
             <TouchableOpacity style={styles.footerButton} onPress={onNavigateToHome}>

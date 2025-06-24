@@ -482,6 +482,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
+    //borderWidth: 1.5,
+    //borderColor: '#000',
   },
   navButton: {
     backgroundColor: '#6B4E31',
@@ -512,6 +514,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#F5F5F5',
+    //borderWidth: 1,
+    //borderColor: '#FFD700',
   },
   chatContent: {
     flexGrow: 1,

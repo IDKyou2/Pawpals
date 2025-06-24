@@ -931,12 +931,24 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   navButton: {
+    /*
     paddingHorizontal: 15,
     paddingVertical: 10,
     marginRight: 10,
+    */
+    backgroundColor: '#6B4E31',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 25,
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   navText: {
-    color: "#6B4E31",
+    color: "#FFF",
     fontSize: 14,
     fontWeight: "600",
     fontFamily: "Roboto",
