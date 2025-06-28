@@ -8,12 +8,13 @@ import {
   ScrollView,
   SafeAreaView,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Define API URL constant
-const BASE_URL = "http://192.168.1.6:5000";
+const BASE_URL = "http://192.168.1.3:5000";
 
 const MatchPageMoreInfoLost = ({
   dog,
@@ -34,14 +35,12 @@ const MatchPageMoreInfoLost = ({
           console.error("No token found in AsyncStorage");
           return;
         }
-
         const userId =
           dog.userId && dog.userId._id ? dog.userId._id : dog.userId;
         if (!userId) {
           console.error("Invalid userId:", dog.userId);
           return;
         }
-
         const response = await axios.get(
           `${BASE_URL}/api/auth/user/${userId}`,
           {
@@ -194,7 +193,6 @@ const MatchPageMoreInfoLost = ({
               />
               <Text style={styles.label}>Last seen at: {dog.location}</Text>
             </View>
-
             <View style={styles.containerRow}>
               <Image
                 source={require("../assets/images/details.png")}
@@ -203,37 +201,55 @@ const MatchPageMoreInfoLost = ({
               <Text style={styles.label}>Additional details: {dog.details}</Text>
             </View>
             <View style={styles.divider} />
-            <View style={styles.userDetailsContainer}>
-              <Image
-                source={require("../assets/images/size.png")}
-                style={styles.bullet}
-              />
-              <Text style={styles.label}>
-                {dog.userId && dog.userId.fullName ? (
-                  <>
-                    <Text style={styles.label}>Posted by: </Text>
-                    {dog.userId.fullName}
-                  </>
-                ) : (
-                  <Text style={styles.errorText}>
-                    Error: User info unavailable.
-                  </Text>
-                )}
-              </Text>
-            </View>
-            <View style={styles.userDetailsContainer}>
-              <Image
-                source={require("../assets/images/size.png")}
-                style={styles.bullet}
-              />
-              {userData && userData.contact ? (
-                <Text style={styles.contact}>
+
+            {dog.userId && dog.userId.fullName ? (
+              <View style={styles.userDetailsContainer}>
+                <Image
+                  source={require("../assets/images/size.png")}
+                  style={styles.bullet}
+                />
+                <Text style={styles.label}>
+                  <Text style={styles.label}>Posted by: </Text>
+                  {dog.userId.fullName}
+                </Text>
+              </View>
+            ) : (
+              <ActivityIndicator size="small" color="#6B4E31" />
+            )}
+
+            {userData && userData.contact ? (
+              <View style={styles.userDetailsContainer}>
+                <Image
+                  source={require("../assets/images/size.png")}
+                  style={styles.bullet}
+                />
+                <Text style={styles.userDetailsText}>
                   <Text style={styles.label}>Contact number: </Text>
                   {userData.contact}
-                </Text>) : (
-                <Text style={styles.errorText}>Contact number unavailable.</Text>
-              )}
-            </View>
+                </Text>
+              </View>
+            ) : (
+              <ActivityIndicator size="small" color="#6B4E31" />
+              //<Text>{userData?.contact || "Loading contact..."}</Text>
+            )}
+
+            {userData && userData.address ? (
+              <View style={styles.userDetailsContainer}>
+                <Image
+                  source={require("../assets/images/size.png")}
+                  style={styles.bullet}
+                />
+                <Text style={styles.userDetailsText}>
+                  <Text style={styles.label}>Address: </Text>
+                  {userData.address}
+                </Text>
+              </View>
+            ) : (
+              <ActivityIndicator size="small" color="#6B4E31" />
+              //<Text>{userData?.contact || "Loading address..."}</Text>
+            )}
+            
+            {/* 
             <View style={styles.userDetailsContainer}>
               <Image
                 source={require("../assets/images/size.png")}
@@ -248,11 +264,12 @@ const MatchPageMoreInfoLost = ({
                 <Text style={styles.errorText}>Address unavailable.</Text>
               )}
             </View>
+            */}
             {/* 
-                    <View>
-                      <Text>{JSON.stringify(userData)}</Text>
-                    </View>
-                    */}
+              <View>
+                <Text>{JSON.stringify(userData)}</Text>
+              </View>
+            */}
           </View>
         </View>
       </ScrollView>
@@ -412,21 +429,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  contact: {
+  userDetailsText: {
     fontSize: 15,
     color: '#6B4E31',
     fontFamily: 'Roboto',
   },
-  /*
-  postedByContainer: {
-    padding: 8,
-    borderRadius: 10,
-    marginLeft: -8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    // backgroundColor: '#F9F9F9',
-  },
-  */
+
   bullet: {
     width: 10,
     height: 10,
@@ -439,10 +447,6 @@ const styles = StyleSheet.create({
     color: '#6B4E31',
     fontFamily: 'Roboto',
   },
-  errorText: {
-    color: '#FF4D4D',
-    fontSize: 15,
-    fontFamily: 'Roboto',
-  },
+
 });
 export default MatchPageMoreInfoLost;

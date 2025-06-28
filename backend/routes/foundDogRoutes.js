@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const PetIdCounter = require("../models/PetIdCounter");
 
-const foundDogsDir = path.join(__dirname, "../../Uploads/foundDogs");
+const foundDogsDir = path.join(__dirname, "../../uploads/foundDogs");
 if (!fs.existsSync(foundDogsDir)) {
   fs.mkdirSync(foundDogsDir, { recursive: true });
 }
@@ -92,14 +92,14 @@ router.post("/founddog", async (req, res) => {
       }
 
       const filename = `${Date.now()}-${file.name}`;
-      imagePath = `/Uploads/foundDogs/${filename}`;
+      imagePath = `/uploads/foundDogs/${filename}`;
       const fullPath = path.join(
         __dirname,
-        "../../Uploads/foundDogs",
+        "../../uploads/foundDogs",
         filename
       );
 
-      console.log("Attempting to save image to piątek, 192.168.1.6:5000/api/founddog", fullPath);
+      console.log("Attempting to save image to piątek, 192.168.1.3:5000/api/founddog", fullPath);
       await file.mv(fullPath);
       console.log("Image successfully saved to:", fullPath);
     } else {
@@ -186,7 +186,7 @@ router.delete("/founddog/:id", async (req, res) => {
       return res.status(404).json({ message: "Found dog not found" });
     }
     if (dog.imagePath) {
-      const imagePath = path.join(__dirname, "../../Uploads", dog.imagePath);
+      const imagePath = path.join(__dirname, "../../uploads", dog.imagePath);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
         console.log("Deleted found dog image:", imagePath);
@@ -212,7 +212,7 @@ router.delete("/delete-match", async (req, res) => {
     if (deletedDog1.imagePath) {
       const imagePath1 = path.join(
         __dirname,
-        "../../Uploads",
+        "../../uploads",
         deletedDog1.imagePath
       );
       if (fs.existsSync(imagePath1)) {
@@ -222,7 +222,7 @@ router.delete("/delete-match", async (req, res) => {
     if (deletedDog2.imagePath) {
       const imagePath2 = path.join(
         __dirname,
-        "../../Uploads",
+        "../../uploads",
         deletedDog2.imagePath
       );
       if (fs.existsSync(imagePath2)) {
@@ -297,12 +297,10 @@ router.post("/archive-unclaimed", async (req, res) => {
       reunited: false,
       archived: false,
     });
-
     await FoundDog.updateMany(
       { _id: { $in: unclaimedDogs.map((dog) => dog._id) } },
       { $set: { archived: true } }
     );
-
     res
       .status(200)
       .json({ message: "Unclaimed found dogs archived successfully." });
@@ -355,7 +353,7 @@ router.delete("/delete-reunited/:id", async (req, res) => {
       return res.status(404).json({ message: "Dog not found" });
     }
     if (dog.imagePath) {
-      const imagePath = path.join(__dirname, "../../Uploads", dog.imagePath);
+      const imagePath = path.join(__dirname, "../../uploads", dog.imagePath);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }

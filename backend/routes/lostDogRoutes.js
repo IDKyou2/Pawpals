@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const PetIdCounter = require("../models/PetIdCounter");
 
-const lostDogsDir = path.join(__dirname, "../../Uploads/lostDogs");
+const lostDogsDir = path.join(__dirname, "../../uploads/lostDogs");
 if (!fs.existsSync(lostDogsDir)) {
   fs.mkdirSync(lostDogsDir, { recursive: true });
 }
@@ -90,8 +90,8 @@ router.post("/lostdog", async (req, res) => {
       }
 
       const filename = `${Date.now()}-${file.name}`;
-      imagePath = `/Uploads/lostDogs/${filename}`;
-      const fullPath = path.join(__dirname, "../../Uploads/lostDogs", filename);
+      imagePath = `/uploads/lostDogs/${filename}`;
+      const fullPath = path.join(__dirname, "../../uploads/lostDogs", filename);
 
       console.log("Attempting to save image to:", fullPath);
       try {
@@ -177,7 +177,7 @@ router.delete("/lostdog/:id", async (req, res) => {
       return res.status(404).json({ message: "Missing dog not found" });
     }
     if (dog.imagePath) {
-      const imagePath = path.join(__dirname, "../../Uploads", dog.imagePath);
+      const imagePath = path.join(__dirname, "../../uploads", dog.imagePath);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
         console.log("Deleted missing dog image:", imagePath);
@@ -203,7 +203,7 @@ router.delete("/delete-match", async (req, res) => {
     if (deletedDog1.imagePath) {
       const imagePath1 = path.join(
         __dirname,
-        "../../Uploads",
+        "../../uploads",
         deletedDog1.imagePath
       );
       if (fs.existsSync(imagePath1)) {
@@ -213,7 +213,7 @@ router.delete("/delete-match", async (req, res) => {
     if (deletedDog2.imagePath) {
       const imagePath2 = path.join(
         __dirname,
-        "../../Uploads",
+        "../../uploads",
         deletedDog2.imagePath
       );
       if (fs.existsSync(imagePath2)) {
@@ -348,7 +348,7 @@ router.delete("/delete-reunited/:id", async (req, res) => {
       return res.status(404).json({ message: "Dog not found" });
     }
     if (dog.imagePath) {
-      const imagePath = path.join(__dirname, "../../Uploads", dog.imagePath);
+      const imagePath = path.join(__dirname, "../../uploads", dog.imagePath);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }

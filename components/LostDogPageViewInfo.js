@@ -8,12 +8,13 @@ import {
   ScrollView,
   SafeAreaView,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Define API URL constant
-const BASE_URL = "http://192.168.1.6:5000";
+const BASE_URL = "http://192.168.1.3:5000";
 
 const LostDogPageViewInfo = ({
   dog,
@@ -21,7 +22,6 @@ const LostDogPageViewInfo = ({
   onNavigateToProfile,
   onNavigateToLostDogPage,
   onLogout,
-  onNavigateToChatForum,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -197,51 +197,52 @@ const LostDogPageViewInfo = ({
               <Text style={styles.label}>Additional details: {dog.details}</Text>
             </View>
             <View style={styles.divider} />
-            <View style={styles.userDetailsContainer}>
-              <Image
-                source={require("../assets/images/size.png")}
-                style={styles.bullet}
-              />
-              <Text style={styles.label}>
-                {dog.userId && dog.userId.fullName ? (
-                  <>
-                    <Text style={styles.label}>Posted by: </Text>
-                    {dog.userId.fullName}
-                  </>
-                ) : (
-                  <Text style={styles.errorText}>
-                    Error: User info unavailable.
-                  </Text>
-                )}
-              </Text>
-            </View>
-            <View style={styles.userDetailsContainer}>
-              <Image
-                source={require("../assets/images/size.png")}
-                style={styles.bullet}
-              />
-              {userData && userData.contact ? (
-                <Text style={styles.contact}>
+
+            {dog.userId && dog.userId.fullName ? (
+              <View style={styles.userDetailsContainer}>
+                <Image
+                  source={require("../assets/images/size.png")}
+                  style={styles.bullet}
+                />
+                <Text style={styles.label}>
+                  <Text style={styles.label}>Posted by: </Text>
+                  {dog.userId.fullName}
+                </Text>
+              </View>
+            ) : (
+              <ActivityIndicator size="small" color="#6B4E31" />
+            )}
+
+            {userData && userData.contact ? (
+              <View style={styles.userDetailsContainer}>
+                <Image
+                  source={require("../assets/images/size.png")}
+                  style={styles.bullet}
+                />
+                <Text style={styles.userDetailsText}>
                   <Text style={styles.label}>Contact number: </Text>
                   {userData.contact}
-                </Text>) : (
-                <Text style={styles.errorText}>Contact number unavailable.</Text>
-              )}
-            </View>
-            <View style={styles.userDetailsContainer}>
-              <Image
-                source={require("../assets/images/size.png")}
-                style={styles.bullet}
-              />
-              {userData && userData.address ? (
-                <Text style={styles.contact}>
+                </Text>
+              </View>
+            ) : (
+              <ActivityIndicator size="small" color="#6B4E31" />
+            )}
+
+            {userData && userData.address ? (
+              <View style={styles.userDetailsContainer}>
+                <Image
+                  source={require("../assets/images/size.png")}
+                  style={styles.bullet}
+                />
+                <Text style={styles.userDetailsText}>
                   <Text style={styles.label}>Address: </Text>
                   {userData.address}
                 </Text>
-              ) : (
-                <Text style={styles.errorText}>Address unavailable.</Text>
-              )}
-            </View>
+              </View>
+            ) : (
+              <ActivityIndicator size="small" color="#6B4E31" />
+            )}
+            
             {/* 
             <View>
               <Text>{JSON.stringify(userData)}</Text>
@@ -406,7 +407,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  contact: {
+  userDetailsText: {
     fontSize: 15,
     color: '#6B4E31',
     fontFamily: 'Roboto',

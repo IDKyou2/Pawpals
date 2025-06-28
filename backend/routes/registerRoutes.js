@@ -48,14 +48,14 @@ router.post("/register", async (req, res) => {
         .json({ message: "Image size exceeds 10MB limit." });
     }
 
-    const uploadDir = path.join(__dirname, "../../Uploads/pictures");
+    const uploadDir = path.join(__dirname, "../../uploads/pictures");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
     const filename = `${Date.now()}-${file.name}`;
     const savedPath = path.join(uploadDir, filename);
-    const profilePicPath = path.join("Uploads/pictures", filename);
+    const profilePicPath = path.join("uploads/pictures", filename);
 
     await file.mv(savedPath);
     console.log("Profile picture uploaded to:", savedPath);
@@ -75,7 +75,9 @@ router.post("/register", async (req, res) => {
     });
 
     await newUser.save();
+    console.log("Account created successfully");
     return res.status(201).json({ message: "Account created successfully!" });
+
   } catch (error) {
     console.error("Registration error:", error);
 

@@ -8,6 +8,7 @@ const fs = require("fs");
 // =================== Get all non-reunited, non-archived lost and found dogs
 router.get("/all-non-reunited-dogs", async (req, res) => {
     try {
+        /*
         const lostDogs = await LostDog.find(
             { reunited: false, archived: false },
             "petId name breed gender size imagePath location details userId category"
@@ -17,6 +18,16 @@ router.get("/all-non-reunited-dogs", async (req, res) => {
             { reunited: false, archived: false },
             "petId breed gender size imagePath location details userId category"
         ).populate("userId", "fullName contact");
+        */
+        const lostDogs = await LostDog.find(
+            { reunited: false, archived: false },
+            "petId name breed gender size imagePath location details userId category"
+        ).populate("userId", "fullName contact address");
+
+        const foundDogs = await FoundDog.find(
+            { reunited: false, archived: false },
+            "petId breed gender size imagePath location details userId category"
+        ).populate("userId", "fullName contact address");
 
         const allDogs = [
             ...lostDogs.map(dog => ({
@@ -87,7 +98,7 @@ router.delete("/unclaimeddog/:id", async (req, res) => {
 
         // Delete associated image if it exists
         if (dog.imagePath) {
-            const imagePath = path.join(__dirname, "../../Uploads", dog.imagePath);
+            const imagePath = path.join(__dirname, "../../uploads", dog.imagePath);
             if (fs.existsSync(imagePath)) {
                 fs.unlinkSync(imagePath);
                 console.log(`Deleted ${dogType} dog image:`, imagePath);

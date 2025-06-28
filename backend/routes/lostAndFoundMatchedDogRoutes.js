@@ -11,8 +11,8 @@ const tf = require("@tensorflow/tfjs-node");
 const md5 = require("js-md5");
 
 // Directory setup for lost and found dog images
-const lostDogsDir = path.join(__dirname, "../../Uploads/lostDogs");
-const foundDogsDir = path.join(__dirname, "../../Uploads/foundDogs");
+const lostDogsDir = path.join(__dirname, "../../uploads/lostDogs");
+const foundDogsDir = path.join(__dirname, "../../uploads/foundDogs");
 
 if (!fs.existsSync(lostDogsDir)) {
   fs.mkdirSync(lostDogsDir, { recursive: true });
@@ -74,7 +74,7 @@ router.get("/match-dogs", async (req, res) => {
     const imageData = await Promise.all(
       dogsWithValidImages.map(async (dog) => {
         try {
-          const imagePath = path.join(__dirname, "../../Uploads", dog.imagePath.replace(/^\/Uploads/, ""));
+          const imagePath = path.join(__dirname, "../../uploads", dog.imagePath.replace(/^\/uploads/, ""));
           if (!fs.existsSync(imagePath)) {
             console.error(`Image not found: ${imagePath}`);
             return null;
@@ -277,7 +277,7 @@ router.post("/lostdog", async (req, res) => {
       }
 
       const filename = `${Date.now()}-${file.name}`;
-      imagePath = `/Uploads/lostDogs/${filename}`;
+      imagePath = `/uploads/lostDogs/${filename}`;
       const fullPath = path.join(lostDogsDir, filename);
 
       console.log("Attempting to save image to:", fullPath);
@@ -400,7 +400,7 @@ router.post("/founddog", async (req, res) => {
       }
 
       const filename = `${Date.now()}.${fileExtension}`;
-      imagePath = `/Uploads/foundDogs/${filename}`;
+      imagePath = `/uploads/foundDogs/${filename}`;
       const fullPath = path.join(foundDogsDir, filename);
 
       console.log("Attempting to save image to:", fullPath);
@@ -457,7 +457,7 @@ router.get("/lostdog", async (req, res) => {
 router.get("/founddog", async (req, res) => {
   try {
     const foundDogs = await FoundDog.find()
-      .populate("userId", "fullName contact")
+      .populate("userId", "fullName contact address")
       .exec();
     res.status(200).json({ foundDogs });
   } catch (error) {
@@ -478,7 +478,7 @@ router.delete("/delete-match", async (req, res) => {
     }
 
     if (deletedLostDog.imagePath) {
-      const lostDogImagePath = path.join(__dirname, "../../Uploads", deletedLostDog.imagePath);
+      const lostDogImagePath = path.join(__dirname, "../../uploads", deletedLostDog.imagePath);
       if (fs.existsSync(lostDogImagePath)) {
         fs.unlinkSync(lostDogImagePath);
         console.log("Deleted lost dog image:", lostDogImagePath);
@@ -486,7 +486,7 @@ router.delete("/delete-match", async (req, res) => {
     }
 
     if (deletedFoundDog.imagePath) {
-      const foundDogImagePath = path.join(__dirname, "../../Uploads", deletedFoundDog.imagePath);
+      const foundDogImagePath = path.join(__dirname, "../../uploads", deletedFoundDog.imagePath);
       if (fs.existsSync(foundDogImagePath)) {
         fs.unlinkSync(foundDogImagePath);
         console.log("Deleted found dog image:", foundDogImagePath);
@@ -637,12 +637,12 @@ router.put("/lostdog/:petId", async (req, res) => {
       }
 
       if (lostDog.imagePath) {
-        const oldImagePath = path.join(__dirname, "../../Uploads", lostDog.imagePath);
+        const oldImagePath = path.join(__dirname, "../../uploads", lostDog.imagePath);
         if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
       }
 
       const filename = `${Date.now()}-${file.name}`;
-      const imagePath = `/Uploads/lostDogs/${filename}`;
+      const imagePath = `/uploads/lostDogs/${filename}`;
       const fullPath = path.join(lostDogsDir, filename);
       await file.mv(fullPath);
       lostDog.imagePath = imagePath;
@@ -694,12 +694,12 @@ router.put("/founddog/:petId", async (req, res) => {
       }
 
       if (foundDog.imagePath) {
-        const oldImagePath = path.join(__dirname, "../../Uploads", foundDog.imagePath);
+        const oldImagePath = path.join(__dirname, "../../uploads", foundDog.imagePath);
         if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
       }
 
       const filename = `${Date.now()}-${file.name}`;
-      const imagePath = `/Uploads/foundDogs/${filename}`;
+      const imagePath = `/uploads/foundDogs/${filename}`;
       const fullPath = path.join(foundDogsDir, filename);
       await file.mv(fullPath);
       foundDog.imagePath = imagePath;

@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  Image,
+  Alert,
+  //Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Footer from "./Footer";
 
 // Define API URL constant
-const BASE_URL = "http://192.168.1.6:5000";
+const BASE_URL = "http://192.168.1.3:5000";
 
 const SuggestionsForm = ({
   onBackClick,
@@ -64,7 +65,7 @@ const SuggestionsForm = ({
       onNavigateToSuggestionsPage();
     }
   };
-
+  /*
   const handleSubmit = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -93,6 +94,42 @@ const SuggestionsForm = ({
       console.error(error);
     }
   };
+  */
+
+  const handleSubmit = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
+      const response = await fetch(`${BASE_URL}/api/suggestions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ suggestion, rating }),
+      });
+
+      if (response.ok) {
+        // Only now update the UI
+        //setSubmitStatus("Thank you for your feedback!");
+        Alert.alert("Submitted", "Thank you for your feedback! Your suggestion has been submitted successfully.");
+        setSuggestion("");
+        setRating(0);
+        //setTimeout(() => setSubmitStatus(null), 3000);
+
+        if (onNavigateToSuggestionsPage) {
+          onNavigateToSuggestionsPage();
+        }
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch (error) {
+      setSubmitStatus(`Error: ${error.message}`);
+      console.error(error);
+    }
+  };
+
 
   const renderStars = () => {
     return [1, 2, 3, 4, 5].map((star) => (
@@ -175,12 +212,12 @@ const SuggestionsForm = ({
       </View>
       <View style={styles.formWrapper}>
         <View style={styles.formContainer}>
-          <Text style={styles.formTitle}>Submit a Suggestion</Text>
+          <Text style={styles.formTitle}>Submit a suggestion</Text>
           <TextInput
             style={styles.textArea}
             multiline
             numberOfLines={6}
-            placeholder="Enter your suggestion here (max. 500 characters)"
+            placeholder="Comment your suggestions here"
             value={suggestion}
             onChangeText={setSuggestion}
             maxLength={500}
@@ -308,11 +345,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto',
   },
   formWrapper: {
+    //marginTop: 0,
+    //marginRight: 10,
+    //marginLeft: 10,
+    //padding:50,
     flex: 1,
     position: 'relative',
     backgroundColor: '#FFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    //borderTopLeftRadius: 20,
+    //borderTopRightRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
@@ -322,7 +363,7 @@ const styles = StyleSheet.create({
   formContainer: {
     flexGrow: 1,
     paddingVertical: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
     width: '100%',
   },
   formTitle: {

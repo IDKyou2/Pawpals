@@ -10,7 +10,7 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "../Uploads/pictures");
+    const uploadDir = path.join(__dirname, "../uploads/pictures");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -81,7 +81,7 @@ router.put("/user/profile", upload.single("profilePic"), async (req, res) => {
     if (fullName) updateData.fullName = fullName;
     if (contact) updateData.contact = contact;
     if (req.file)
-      updateData.profilePic = `Uploads/pictures/${req.file.filename}`;
+      updateData.profilePic = `uploads/pictures/${req.file.filename}`;
 
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: "No fields provided to update" });
@@ -101,8 +101,8 @@ router.put("/user/profile", upload.single("profilePic"), async (req, res) => {
         fullName: updatedUser.fullName,
         contact: updatedUser.contact,
         profilePic: updatedUser.profilePic
-          ? `/Uploads/pictures/${path.basename(updatedUser.profilePic)}`
-          : "/Uploads/default-user.png",
+          ? `/uploads/pictures/${path.basename(updatedUser.profilePic)}`
+          : "/uploads/default-user.png",
       },
     });
   } catch (error) {
@@ -131,8 +131,8 @@ router.get("/user/profile", async (req, res) => {
       contact: userData.contact,
       email: userData.email,
       profilePic: userData.profilePic
-        ? `/Uploads/pictures/${path.basename(userData.profilePic)}`
-        : "/Uploads/default-user.png",
+        ? `/uploads/pictures/${path.basename(userData.profilePic)}`
+        : "/uploads/default-user.png",
       address: userData.address,
     });
   } catch (error) {

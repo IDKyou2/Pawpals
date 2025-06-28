@@ -3,7 +3,7 @@ step 2: click inbound rules
 step 3: click new rule
 step 4: choose PORT
 step 5: click next
-step 6: click UDP
+step 6: click UDP // --------- this should be TCP
 step 7: click next
 step 8: Choose allow the connection
 step 9: click next
@@ -12,9 +12,7 @@ step 11: click next
 step 12: right click, choose properties
 step 13: find Scope
 step 14: Click these ip
-
-
-
+step 15: Enter trusted IP addresses if needed
 
 
 PARA MAG SEND OG PICS SA EMULATOR:
@@ -23,5 +21,6 @@ PARA MAG SEND OG PICS SA EMULATOR:
 
 
 ILISAN PARA SA SERVER:
+(android\app\src\main\res\xml\network_security_config.xml)
 xml folder:
 network_security_config.xml

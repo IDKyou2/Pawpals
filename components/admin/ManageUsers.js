@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const API_BASE_URL = "http://192.168.1.6:5000/api/";
+const API_BASE_URL = "http://192.168.1.3:5000/api/";
 const ManageUsersScreen = ({ onNavigateToAdminDashBoard, onNavigateToProfileUser }) => {
     const [users, setUsers] = useState([]);
     useEffect(() => {
@@ -13,7 +13,7 @@ const ManageUsersScreen = ({ onNavigateToAdminDashBoard, onNavigateToProfileUser
                 if (response.data && Array.isArray(response.data)) {
                     const fetchedUsers = response.data.map(user => {
                         const normalizedProfilePic = user.profilePic ? user.profilePic.replace(/\\/g, '/') : null;
-                        const imageUrl = normalizedProfilePic ? `http://192.168.1.6:5000/${normalizedProfilePic}` : null;
+                        const imageUrl = normalizedProfilePic ? `http://192.168.1.3:5000/${normalizedProfilePic}` : null;
                         console.log(`User ${user._id} - Full Name: ${user.fullName}, Profile Pic Path: ${normalizedProfilePic}, Full URL: ${imageUrl}`);
                         return {
                             id: user._id,
@@ -22,7 +22,7 @@ const ManageUsersScreen = ({ onNavigateToAdminDashBoard, onNavigateToProfileUser
                             username: user.username || 'N/A',
                             contact: user.contact || 'N/A',
                             profilePic: normalizedProfilePic,
-                            image: imageUrl && normalizedProfilePic !== 'Uploads/'
+                            image: imageUrl && normalizedProfilePic !== 'uploads/'
                                 ? { uri: imageUrl }
                                 : require('../../assets/images/default-user.png'),
                             originalImageUrl: imageUrl,
@@ -88,7 +88,7 @@ const ManageUsersScreen = ({ onNavigateToAdminDashBoard, onNavigateToProfileUser
                     )
                 );
                 Alert.alert(
-                    "Success",
+                    "Admin access",
                     response.data.message,
                     [{ text: "OK" }]
                 );

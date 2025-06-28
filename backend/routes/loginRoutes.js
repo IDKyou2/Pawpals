@@ -7,8 +7,15 @@ const router = express.Router();
 // Enhanced Login Route
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-
   try {
+    //
+    if (/\s/.test(username) || /\s/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and password cannot contain whitespaces."
+      });
+    }
+
     // Validate input
     if (!username.trim() || !password.trim()) {
       return res.status(400).json({
@@ -27,15 +34,13 @@ router.post("/login", async (req, res) => {
         message: "Incorrect username or password. Please try again."
       });
     }
-
     // Check if user is banned
-    if (user.banned) {
+    else if (user.banned) {
       return res.status(403).json({
         success: false,
         message: "Your account has been banned for violating our policy. Any disrepectful actions will not be tolerated. Please contact support."
       });
     }
-
     // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -56,7 +61,6 @@ router.post("/login", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
-   
 
     // Successful login response
     res.status(200).json({
@@ -70,6 +74,7 @@ router.post("/login", async (req, res) => {
         profilePic: user.profilePic
       }
     });
+   
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({

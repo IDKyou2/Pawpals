@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -33,15 +34,17 @@ const FoundDogPage = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const newChatsCount = useChatCount();
+  const [loading, setLoading] = useState(true);
 
   // Define API URL constants
-  const FOUND_DOG_API_URL = "http://192.168.1.6:5000/api/founddog";
-  const NEW_POSTS_API_URL = "http://192.168.1.6:5000/api/posts/new-posts-count";
-  const SOCKET_URL = "http://192.168.1.6:5000";
-  const BASE_URL = "http://192.168.1.6:5000";
+  const FOUND_DOG_API_URL = "http://192.168.1.3:5000/api/founddog";
+  const NEW_POSTS_API_URL = "http://192.168.1.3:5000/api/posts/new-posts-count";
+  const SOCKET_URL = "http://192.168.1.3:5000";
+  const BASE_URL = "http://192.168.1.3:5000";
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // Show ActivityIndicator while fetching
       try {
         const token = await AsyncStorage.getItem("token");
         if (!token) {
@@ -67,6 +70,8 @@ const FoundDogPage = ({
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); // Done loading
       }
     };
 
@@ -101,7 +106,6 @@ const FoundDogPage = ({
   });
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
   const handleHomeClick = () => {
     onNavigateToHome?.();
     setMenuOpen(false);
@@ -223,59 +227,64 @@ const FoundDogPage = ({
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content}>
-        {filteredDogs.length > 0 ? (
-          filteredDogs.map((dog, index) => (
-            <View
-              style={[styles.card, dog.reunited && styles.reunitedCard]}
-              key={dog.petId || index}
-            >
-              <Image
-                source={
-                  dog.imagePath
-                    ? { uri: `${BASE_URL}${dog.imagePath}` }
-                    : require("../assets/images/dog-icon.png")
-                }
-                style={styles.cardImage}
-              />
-              <View style={styles.cardContent}>
-                <Text style={styles.petIdText}>Pet ID: {dog.petId}</Text>
-                <Text style={styles.cardSubtitle}>
-                  {dog.breed}, {dog.gender}
-                </Text>
-                <View style={styles.cardLocation}>
-                  {/* <Image
+        {loading ? (
+          <ActivityIndicator size="large" color="#FFD700" />
+        ) :
+          filteredDogs.length > 0 ? (
+            filteredDogs.map((dog, index) => (
+              <View
+                style={[styles.card, dog.reunited && styles.reunitedCard]}
+                key={dog.petId || index}
+              >
+                <Image
+                  source={
+                    dog.imagePath
+                      ? { uri: `${BASE_URL}${dog.imagePath}` }
+                      : require("../assets/images/dog-icon.png")
+                  }
+                  style={styles.cardImage}
+                />
+                <View style={styles.cardContent}>
+                  <Text style={styles.petIdText}>Pet ID: {dog.petId}</Text>
+                  <Text style={styles.cardSubtitle}>
+                    {dog.breed}, {dog.gender}
+                  </Text>
+                  <View style={styles.cardLocation}>
+                    {/* <Image
                     source={require("../assets/images/location-icon.png")}
                     style={styles.locationIcon}
                   /> */}
-                  <Text style={styles.cardLocationText}>
-                    Found at:{" "}{dog.location}
+                    <Text style={styles.cardLocationText}>
+                      Found at:{" "}{dog.location}
+                    </Text>
+                  </View>
+                  <Text style={styles.cardTimestamp}>
+                    Found on: {new Date(dog.createdAt).toLocaleString()}
                   </Text>
+                  <Text style={styles.cardCategory}>
+                    Category: {dog.category || "Found"}
+                  </Text>
+                  {dog.reunited && (
+                    <Text style={styles.reunitedText}>Status: Reunited</Text>
+                  )}
+                  <TouchableOpacity
+                    style={styles.moreInfoButton}
+                    onPress={() => handleMoreInfoClick(dog)}
+                  >
+                    <Text style={styles.moreInfoText}>More Info</Text>
+                  </TouchableOpacity>
                 </View>
-                <Text style={styles.cardTimestamp}>
-                  Found on: {new Date(dog.createdAt).toLocaleString()}
-                </Text>
-                <Text style={styles.cardCategory}>
-                  Category: {dog.category || "Found"}
-                </Text>
-                {dog.reunited && (
-                  <Text style={styles.reunitedText}>Status: Reunited</Text>
-                )}
-                <TouchableOpacity
-                  style={styles.moreInfoButton}
-                  onPress={() => handleMoreInfoClick(dog)}
-                >
-                  <Text style={styles.moreInfoText}>More Info</Text>
-                </TouchableOpacity>
               </View>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.noDataText}>
-            {searchQuery
-              ? "No matching dogs found."
-              : "No found dogs reported yet."}
-          </Text>
-        )}
+            ))
+          ) : (
+            <Text style={styles.noDataText}>
+              {searchQuery
+                ? "No matching dogs found."
+                : "No found dogs reported yet."
+              }
+            </Text>
+          )
+        }
       </ScrollView>
 
       {/* Footer */}

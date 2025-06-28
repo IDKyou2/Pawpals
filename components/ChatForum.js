@@ -19,7 +19,7 @@ import NotificationModal from "./NotificationModal";
 import Footer from "./Footer";
 
 const SERVER_URL =
-  Platform.OS === "android" ? "http://192.168.1.6:5000" : "http://192.168.1.6:5000";
+  Platform.OS === "android" ? "http://192.168.1.3:5000" : "http://192.168.1.3:5000";
 
 const ChatForum = ({
   onNavigateToHome,
@@ -95,7 +95,7 @@ const ChatForum = ({
           query: { token },
           reconnection: true,
           reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
+          reconnectionDelay: 1000,//
         });
 
         socketRef.current.on("connect", () => {
@@ -306,7 +306,7 @@ const ChatForum = ({
                     source={
                       message.profilePic
                         ? { uri: `${SERVER_URL}${message.profilePic}` }
-                        : require("../assets/images/Global-images/default-user.png")
+                        : require("../assets/images/default-user.png")
                     }
                     style={styles.userAvatar}
                   />
@@ -337,7 +337,7 @@ const ChatForum = ({
                     source={
                       message.profilePic
                         ? { uri: `${SERVER_URL}${message.profilePic}` }
-                        : require("../assets/images/Global-images/default-user.png")
+                        : require("../assets/images/default-user.png")
                     }
                     style={styles.userAvatar}
                   />
@@ -359,7 +359,7 @@ const ChatForum = ({
                   source={
                     user.profilePic
                       ? { uri: `${SERVER_URL}${user.profilePic}` }
-                      : require("../assets/images/Global-images/default-user.png")
+                      : require("../assets/images/default-user.png")
                   }
                   style={styles.userListAvatar}
                 />
@@ -377,7 +377,6 @@ const ChatForum = ({
           </ScrollView>
         </View>
       </View>
-
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.messageInput}
@@ -393,6 +392,7 @@ const ChatForum = ({
         </TouchableOpacity>
       </View>
 
+      {/* */}
       <Footer
         onNavigateToHome={handleHomeClick}
         onNavigateToChatForum={handleMessageClick}
@@ -400,7 +400,6 @@ const ChatForum = ({
         newChatsCount={newChatsCount}
         newPostsCount={newPostsCount}
       />
-
       <NotificationModal isModalOpen={isModalOpen} closeModal={closeModal} />
     </KeyboardAvoidingView>
   );
@@ -409,7 +408,7 @@ const ChatForum = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    //backgroundColor: '#F5F5F5',
   },
   header: {
     flexDirection: 'row',
@@ -520,7 +519,8 @@ const styles = StyleSheet.create({
   chatContent: {
     flexGrow: 1,
     padding: 20,
-    paddingBottom: 100,
+    //paddingBottom: 100,
+    paddingBottom: 50,
   },
   noChatsContainer: {
     flex: 1,
@@ -663,6 +663,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
+    //marginTop: 100,
   },
   messageInput: {
     flex: 1,

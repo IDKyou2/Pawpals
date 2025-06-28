@@ -10,13 +10,12 @@ const Footer = ({
     //initialChatsCount = 0,
 }) => {
     //const [newChatsCount, setNewChatsCount] = useState(initialChatsCount);
-  
 
     return (
         <View style={styles.footer}>
             <TouchableOpacity style={styles.footerButton} onPress={onNavigateToHome}>
                 <Image
-                    source={require("../assets/images/Global-images/home-icon.png")}
+                    source={require("../assets/images/home-icon.png")}
                     style={styles.footerIcon}
                 />
             </TouchableOpacity>
@@ -25,10 +24,12 @@ const Footer = ({
                 onPress={onNavigateToChatForum}
             >
                 {newChatsCount > 0 && (
-                    <Text style={styles.notificationCount}>{newChatsCount}</Text>
+                    <Text style={styles.notificationCount}>
+                        {newChatsCount > 99 ? "99+" : newChatsCount}
+                    </Text>
                 )}
                 <Image
-                    source={require("../assets/images/Global-images/message-icon.png")}
+                    source={require("../assets/images/message-icon.png")}
                     style={styles.footerIcon}
                 />
             </TouchableOpacity>
@@ -37,10 +38,10 @@ const Footer = ({
                 onPress={handleNotificationClick}
             >
                 {newPostsCount > 0 && (
-                    <Text style={styles.notificationCount}>{newPostsCount}</Text>
+                    <Text style={styles.notificationCount}>{newPostsCount > 99 ? "99+" : newPostsCount}</Text>
                 )}
                 <Image
-                    source={require("../assets/images/Global-images/notification-icon.png")}
+                    source={require("../assets/images/notification-icon.png")}
                     style={styles.footerIcon}
                 />
             </TouchableOpacity>
@@ -76,12 +77,17 @@ const styles = StyleSheet.create({
         backgroundColor: "#FF4D4D",
         color: "#FFF",
         borderRadius: 12,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        fontSize: 12,
+        minWidth: 26,              // increased from 24
+        height: 24,
+        lineHeight: 24,
+        paddingHorizontal: 4,      // increased slightly for wider text
+        fontSize: 11,
         fontWeight: "bold",
         fontFamily: "Roboto",
+        textAlign: "center",
+        overflow: "hidden",
     },
+
 });
 
 export default Footer;

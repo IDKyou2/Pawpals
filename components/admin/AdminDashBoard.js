@@ -13,8 +13,8 @@ import {
 import axios from "axios";
 
 const { width } = Dimensions.get("window");
-const API_BASE_URL = "http://192.168.1.6:5000/api/"; // For API endpoints
-const STATIC_BASE_URL = "http://192.168.1.6:5000/"; // For static files (images)
+const API_BASE_URL = "http://192.168.1.3:5000/api/"; // For API endpoints
+const STATIC_BASE_URL = "http://192.168.1.3:5000/"; // For static files (images)
 
 const iconMap = {
   "default-user.png": require("../../assets/images/default-user.png"),
@@ -172,7 +172,7 @@ const AdminDashBoard = ({
         <View style={styles.header}>
           <View style={styles.logoContainer}>
             <Image
-              source={require("../../assets/images/Logo-removebg.png")}
+              source={require('../../assets/images/Logo-removebg.png')}
               style={styles.logo}
               resizeMode="contain"
             />

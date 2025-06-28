@@ -47,8 +47,8 @@ const FoundDogFormConfirmation = ({
   const [image, setImage] = useState(formData?.image || null);
   const newChatsCount = useChatCount();
 
-  const NEW_POSTS_API_URL = "http://192.168.1.6:5000/api/posts/new-posts-count";
-  const FOUND_DOG_API_URL = "http://192.168.1.6:5000/api/founddog";
+  const NEW_POSTS_API_URL = "http://192.168.1.3:5000/api/posts/new-posts-count";
+  const FOUND_DOG_API_URL = "http://192.168.1.3:5000/api/founddog";
 
   useEffect(() => {
     const fetchNewPostsCount = async () => {

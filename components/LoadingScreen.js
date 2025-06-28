@@ -16,7 +16,7 @@ const LoadingScreen = ({ onFinishLoading }) => {
       <View style={styles.loadingScreenForm}>
         <View style={styles.loadingScreenLogo}>
           <Image
-            source={require("../assets/images/Global-images/Logo-updated.png")}
+            source={require("../assets/images/Logo-removebg.png")}
             style={styles.logo}
           />
         </View>

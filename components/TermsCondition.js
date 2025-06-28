@@ -19,7 +19,7 @@ const TermsModal = ({ visible, onClose, onAccept }) => {
   const handleNextButtonClick = () => {
     if (isChecked) {
       onAccept();
-      console.log("User agreed on terms and agreeements.");
+      console.log("User agreed on terms and agreeements. Proceeding to register.");
     }
   };
 
@@ -154,12 +154,12 @@ const TermsModal = ({ visible, onClose, onAccept }) => {
             >
               {isChecked ? (
                 <Image
-                  source={require("../assets/images/Global-images/checked.png")}
+                  source={require("../assets/images/checked.png")}
                   style={styles.checkboxIcon}
                 />
               ) : (
                 <Image
-                  source={require("../assets/images/Global-images/unchecked.png")}
+                  source={require("../assets/images/unchecked.png")}
                   style={styles.checkboxIcon}
                 />
               )}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Modal, Alert } from 'react-native';
 import axios from 'axios';
 
-const API_BASE_URL = "http://192.168.1.6:5000/api/";
+const API_BASE_URL = "http://192.168.1.3:5000/api/";
 
 const ViewReunitedDogs = ({ onNavigateToAdminDashBoard, onNavigateToViewReunitedDogInfo, onNavigateToUserLogin }) => {
     const [dogs, setDogs] = useState([]);
@@ -17,11 +17,11 @@ const ViewReunitedDogs = ({ onNavigateToAdminDashBoard, onNavigateToViewReunited
                 if (response.data && Array.isArray(response.data)) {
                     const fetchedDogs = response.data.map(dog => {
                         const normalizedImagePath = dog.imagePath ? dog.imagePath.replace(/\\/g, '/') : null;
-                        const imageUrl = normalizedImagePath ? `http://192.168.1.6:5000${normalizedImagePath}` : null;
+                        const imageUrl = normalizedImagePath ? `http://192.168.1.3:5000${normalizedImagePath}` : null;
                         return {
                             id: dog._id,
                             petId: dog.petId,
-                            image: imageUrl && normalizedImagePath !== '/Uploads/reunitedDogs/'
+                            image: imageUrl && normalizedImagePath !== '/uploads/reunitedDogs/'
                                 ? { uri: imageUrl }
                                 : require('../../assets/images/dog-icon.png'),
                             originalImageUrl: imageUrl,

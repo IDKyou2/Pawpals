@@ -13,7 +13,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Define API URL constants
-const BASE_URL = "http://192.168.1.6:5000";
+const BASE_URL = "http://192.168.1.3:5000";
 
 const FoundDogPageViewInfo = ({
   dog,
@@ -21,7 +21,6 @@ const FoundDogPageViewInfo = ({
   onNavigateToProfile,
   onNavigateToFoundDogPage,
   onLogout,
-  onNavigateToChatForum,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userData, setUserData] = useState(null);

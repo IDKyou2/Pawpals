@@ -16,13 +16,13 @@ import io from "socket.io-client";
 import axios from "axios";
 
 const SERVER_URL =
-  Platform.OS === "android" ? "http://192.168.1.6:5000" : "http://192.168.1.6:5000";
+  Platform.OS === "android" ? "http://192.168.1.3:5000" : "http://192.168.1.3:5000";
 
 const PrivateChat = ({
   user,
   onNavigateToChatForum,
-  onNavigateToHome,
-  onNavigateToProfile,
+  //onNavigateToHome,
+  //onNavigateToProfile,
   onLogout,
 }) => {
   const [messages, setMessages] = useState([]);
@@ -235,7 +235,8 @@ const PrivateChat = ({
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackToForum}>
-          <Text style={styles.backText}>Back to Forum</Text>
+          <Text style={styles.backText}>Go Back</Text>
+          
         </TouchableOpacity>
         <Text style={styles.headerText}>{user.fullName}</Text>
       </View>
@@ -265,7 +266,7 @@ const PrivateChat = ({
                   source={
                     message.profilePic
                       ? { uri: `${SERVER_URL}${message.profilePic}` }
-                      : require("../assets/images/Global-images/default-user.png")
+                      : require("../assets/images/default-user.png")
                   }
                   style={styles.userAvatar}
                 />
@@ -290,7 +291,7 @@ const PrivateChat = ({
                   source={
                     message.profilePic
                       ? { uri: `${SERVER_URL}${message.profilePic}` }
-                      : require("../assets/images/Global-images/default-user.png")
+                      : require("../assets/images/default-user.png")
                   }
                   style={styles.userAvatar}
                 />

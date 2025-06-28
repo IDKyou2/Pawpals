@@ -18,25 +18,19 @@ const LoginPage = ({ onSignUpClick, onLoginSuccess, navigateToAdminDashBoard }) 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const API_URL = "http://192.168.1.6:5000/api/login/login";
+  const API_URL = "http://192.168.1.3:5000/api/login/login";
 
   const handleLoginSubmit = async () => {
-    console.log("User clicked login button.");
-    if (!username?.trim() || !password?.trim()) {
-      setErrorMessage("Please enter both username and password.");
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 5000);
-      return;
-    }
+    // Check for suspicious characters
+    const isSuspicious =
+      /[{}<>$;'"\\]/.test(username) || /[{}<>$;'"\\]/.test(password);
 
-    // Whitespace validation
-    if (/\s/.test(username) || /\s/.test(password)) {
-      setErrorMessage("Username and password cannot contain whitespace.");
+    if (isSuspicious) {
+      console.warn(`[${new Date().toLocaleString()}] Suspicious login attempt.`);
+      setErrorMessage("Invalid credentials.");
       setTimeout(() => {
         setErrorMessage("");
-      }, 5000);
+      }, 10000);
       return;
     }
 
@@ -78,8 +72,9 @@ const LoginPage = ({ onSignUpClick, onLoginSuccess, navigateToAdminDashBoard }) 
           timeout: 10000,
         }
       );
-
       if (response.data.success) {
+        //log user
+        console.log(`[${new Date().toLocaleString()}] User`,username,`has logged in successfully:`);
         await AsyncStorage.multiSet([
           ["token", response.data.token],
           ["user", JSON.stringify(response.data.user)],
@@ -90,13 +85,12 @@ const LoginPage = ({ onSignUpClick, onLoginSuccess, navigateToAdminDashBoard }) 
       let errorMsg = "Login failed. Please try again.";
       if (error.response) {
         errorMsg = error.response.data.message || errorMsg;
-        if (error.response.status === 401) {
+        if (error.response.status === 401) { //401 - wrong user or pass
           //Alert.alert("Login Error", error.response.data.message);
           console.log("Login Error:", error.response.data.message);
           setErrorMessage(errorMsg);
-        } else if (error.response.status === 403) {
-          Alert.alert("Login Error", error.response.data.message);
-          setErrorMessage("Account banned.");
+        } else if (error.response.status === 403) {//403 - user banned
+          Alert.alert("Account banned", error.response.data.message);
         } else {
           setErrorMessage(errorMsg);
         }
@@ -108,13 +102,14 @@ const LoginPage = ({ onSignUpClick, onLoginSuccess, navigateToAdminDashBoard }) 
         if (!API_URL) {
           console.log("API_URL is not defined. Please check your configuration.");
         } else {
-          console.log("Request made but no response received. Double check the API_URL:", API_URL);
+          console.log("Check the server if its running. Request made but no response received. Double check the API_URL:", API_URL);
+          setErrorMessage("Connection timeout. Server is under maintenance.")
         }
       } else {
         errorMsg = `Error: ${error.message}`;
         console.log("Error in setting up request:", error.message);
       }
-      setErrorMessage(errorMsg);
+      //setErrorMessage(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +120,7 @@ const LoginPage = ({ onSignUpClick, onLoginSuccess, navigateToAdminDashBoard }) 
       <View style={styles.LoginPageContainer}>
         <View style={styles.loginLogo}>
           <Image
-            source={require("../assets/images/Global-images/Logo-removebg.png")}
+            source={require("../assets/images/Logo-removebg.png")}
             style={styles.logoImage}
           />
         </View>
@@ -164,8 +159,8 @@ const LoginPage = ({ onSignUpClick, onLoginSuccess, navigateToAdminDashBoard }) 
               <Image
                 source={
                   passwordVisible
-                    ? require("../assets/images/Global-images/hide-eyes-updated.png")
-                    : require("../assets/images/Global-images/open-eyes-updated.png")
+                    ? require("../assets/images/hide-eyes-updated.png")
+                    : require("../assets/images/open-eyes-updated.png")
                 }
                 style={styles.iconImage}
               />

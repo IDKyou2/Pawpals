@@ -29,10 +29,10 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "http://192.168.1.6:3000",
-      "http://192.168.1.6:8081",
-      "http://192.168.1.6:8080",
-      "http://192.168.1.6:5000",
+      "http://192.168.1.3:3000",
+      "http://192.168.1.3:8081",
+      "http://192.168.1.3:8080",
+      "http://192.168.1.3:5000",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
@@ -49,10 +49,10 @@ app.use(fileUpload());
 const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = [
-      "http://192.168.1.6:3000",
-      "http://192.168.1.6:8081",
-      "http://192.168.1.6:8080",
-      "http://192.168.1.6:5000",
+      "http://192.168.1.3:3000",
+      "http://192.168.1.3:8081",
+      "http://192.168.1.3:8080",
+      "http://192.168.1.3:5000",
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -78,7 +78,6 @@ let mobilenetModel;
     console.error("Error loading MobileNet model:", error);
   }
 })();
-
 // Pass the model and io to routes
 app.use((req, res, next) => {
   req.io = io;
@@ -86,9 +85,9 @@ app.use((req, res, next) => {
   next();
 });
 
-const uploadsDir = path.join(__dirname, "../Uploads");
-const picturesDir = path.join(__dirname, "../Uploads/pictures");
-app.use("/Uploads", express.static(uploadsDir), (req, res, next) => {
+const uploadsDir = path.join(__dirname, "../uploads");
+const picturesDir = path.join(__dirname, "../uploads/pictures");
+app.use("/uploads", express.static(uploadsDir), (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   next();
 });
@@ -155,9 +154,9 @@ io.on("connection", (socket) => {
             ...msg._doc,
             profilePic: user
               ? user.profilePic
-                ? `/Uploads/pictures/${path.basename(user.profilePic)}`
-                : "/Uploads/default-user.png"
-              : "/Uploads/default-user.png",
+                ? `/uploads/pictures/${path.basename(user.profilePic)}`
+                : "/uploads/default-user.png"
+              : "/uploads/default-user.png",
           };
         })
       );
@@ -196,9 +195,9 @@ io.on("connection", (socket) => {
         ...newMessage._doc,
         profilePic: user
           ? user.profilePic
-            ? `/Uploads/pictures/${path.basename(user.profilePic)}`
-            : "/Uploads/default-user.png"
-          : "/Uploads/default-user.png",
+            ? `/uploads/pictures/${path.basename(user.profilePic)}`
+            : "/uploads/default-user.png"
+          : "/uploads/default-user.png",
       };
 
       console.log(

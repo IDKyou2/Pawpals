@@ -33,8 +33,8 @@ const HomePage = ({
   const newChatsCount = useChatCount();
 
   // Define API URL constants
-  const NEW_POSTS_API_URL = "http://192.168.1.6:5000/api/posts/new-posts-count";
-  const profileApi = "http://192.168.1.6:5000/api/auth/user/profile";
+  const NEW_POSTS_API_URL = "http://192.168.1.3:5000/api/posts/new-posts-count";
+  const profileApi = "http://192.168.1.3:5000/api/auth/user/profile";
 
   useEffect(() => {
     const fetchNewPostsCount = async () => {
@@ -189,7 +189,7 @@ const HomePage = ({
                 ? {
                   uri: `${profileApi.replace("/api/auth/user/profile", "")}${userData.profilePic}`,
                 }
-                : require("../assets/images/Global-images/default-user-profile.png")
+                : require("../assets/images/default-user-profile.png")
             }
             style={styles.profileImage}
           />

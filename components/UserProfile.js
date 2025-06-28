@@ -10,6 +10,7 @@ import {
   ScrollView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -20,7 +21,7 @@ import Footer from "./Footer";
 
 // Define API URL constants
 const BASE_URL =
-  Platform.OS === "android" ? "http://192.168.1.6:5000" : "http://192.168.1.6:5000";
+  Platform.OS === "android" ? "http://192.168.1.3:5000" : "http://192.168.1.3:5000";
 const USER_PROFILE_API_URL = `${BASE_URL}/api/auth/user/profile`;
 const NEW_POSTS_API_URL = `${BASE_URL}/api/posts/new-posts-count`;
 
@@ -248,7 +249,7 @@ const UserProfile = ({ onNavigateToHome, onLogout, onNavigateToChatForum }) => {
             source={
               userData?.profilePic
                 ? { uri: `${BASE_URL}${userData.profilePic}` }
-                : require("../assets/images/Global-images/default-user-profile.png")
+                : require("../assets/images/default-user-profile.png")
             }
             style={styles.profileImage}
             onError={() => console.log("Image failed to load.")}
@@ -301,7 +302,7 @@ const UserProfile = ({ onNavigateToHome, onLogout, onNavigateToChatForum }) => {
                 </View>
               )}
               <Text style={styles.userDataText}>
-                Full name: {userData?.fullName || "..."}
+                Full name: {userData?.fullName || <ActivityIndicator size="small" color="#FFD700" />}
               </Text>
               {/*
               <Text style={styles.userDataText}>
@@ -309,10 +310,10 @@ const UserProfile = ({ onNavigateToHome, onLogout, onNavigateToChatForum }) => {
               </Text>
               */}
               <Text style={styles.userDataText}>
-                Contact #: {userData?.contact || "..."}
+                Contact #: {userData?.contact || <ActivityIndicator size="small" color="#FFD700" />}
               </Text>
               <Text style={styles.userDataText}>
-                Address: {userData?.address || "..."}
+                Address: {userData?.address || <ActivityIndicator size="small" color="#FFD700" />}
               </Text>
               <TouchableOpacity
                 style={styles.editButton}
@@ -335,7 +336,7 @@ const UserProfile = ({ onNavigateToHome, onLogout, onNavigateToChatForum }) => {
                     source={
                       message.profilePic
                         ? { uri: `${BASE_URL}${message.profilePic}` }
-                        : require("../assets/images/Global-images/default-user.png")
+                        : require("../assets/images/default-user.png")
                     }
                     style={styles.messageAvatar}
                   />

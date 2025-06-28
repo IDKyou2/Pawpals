@@ -40,7 +40,7 @@ const RegisterForm = ({ onLoginClick }) => {
 
   const checkUsernameAvailability = async (username) => {
     try {
-      const res = await axios.post("http://192.168.1.6:5000/api/register/check-username", { username });
+      const res = await axios.post("http://192.168.1.3:5000/api/register/check-username", { username });
       return res.data.exists;
     } catch (err) {
       console.error("Username check failed:", err);
@@ -48,8 +48,8 @@ const RegisterForm = ({ onLoginClick }) => {
     }
   };
 
-  // For Android emulator use 103.106.67.162, for iOS simulator use 192.168.1.6
-  const API_URL = "http://192.168.1.6:5000/api/register/register";
+  // For Android emulator use 103.106.67.162, for iOS simulator use 192.168.1.3
+  const API_URL = "http://192.168.1.3:5000/api/register/register";
 
   const handleImageUpload = async () => {
     try {
@@ -72,7 +72,8 @@ const RegisterForm = ({ onLoginClick }) => {
 
       if (!result.canceled && result.assets) {
         setProfilePic(result.assets[0]);
-        console.log("User has selected an image:", result.assets[0].uri);
+        //console.log("User has selected an image:", result.assets[0].uri);
+        console.log("User has selected an image.");
       } else {
         console.log("User cancelled image upload.");
       }
@@ -87,6 +88,7 @@ const RegisterForm = ({ onLoginClick }) => {
     setSuccess(null);
     setLoading(true);
 
+    /*
     // console.log("User clicked register now button.");
     if (process.env.NODE_ENV === "development") {
       console.log("Username:", username);
@@ -98,7 +100,7 @@ const RegisterForm = ({ onLoginClick }) => {
       console.log("Address:", address);
       console.log("Password received.");
     }
-
+    */
 
     if (password !== confirmPassword) {
       setError("Password and confirm password don't match.");
@@ -142,7 +144,7 @@ const RegisterForm = ({ onLoginClick }) => {
       return;
     }
     if (!profilePic) {
-      setError("Profile picture is required!");
+      setError("Profile picture is required");
       setLoading(false);
       return;
     }
@@ -168,7 +170,7 @@ const RegisterForm = ({ onLoginClick }) => {
 
       // Log FormData contents for debugging
       for (let [key, value] of formData) {
-        console.log(`Form Data: ${key} =`, value);
+        //console.log(`Form Data: ${key} =`, value);  //For testing only
       }
 
       const response = await axios.post(API_URL, formData, {
@@ -232,7 +234,7 @@ const RegisterForm = ({ onLoginClick }) => {
         <View style={styles.registerFormContainer}>
           <View style={styles.registerLogo}>
             <Image
-              source={require("../assets/images/Global-images/Logo-updated.png")}
+              source={require("../assets/images/Logo-removebg.png")}
               style={styles.logoImage}
             />
           </View>
@@ -245,12 +247,12 @@ const RegisterForm = ({ onLoginClick }) => {
               source={
                 profilePic
                   ? { uri: profilePic.uri }
-                  : require("../assets/images/Global-images/default-user.png")
+                  : require("../assets/images/default-user.png")
               }
               style={styles.profilePic}
             />
             <Image
-              source={require("../assets/images/Global-images/default-image-upload.png")}
+              source={require("../assets/images/default-image-upload.png")}
               style={styles.uploadIcon}
             />
           </TouchableOpacity>
@@ -319,8 +321,8 @@ const RegisterForm = ({ onLoginClick }) => {
                 <Image
                   source={
                     passwordVisible
-                      ? require("../assets/images/Global-images/hide-eyes-updated.png")
-                      : require("../assets/images/Global-images/open-eyes-updated.png")
+                      ? require("../assets/images/hide-eyes-updated.png")
+                      : require("../assets/images/open-eyes-updated.png")
                   }
                   style={styles.iconImage}
                 />
@@ -345,8 +347,8 @@ const RegisterForm = ({ onLoginClick }) => {
                 <Image
                   source={
                     confirmPasswordVisible
-                      ? require("../assets/images/Global-images/hide-eyes-updated.png")
-                      : require("../assets/images/Global-images/open-eyes-updated.png")
+                      ? require("../assets/images/hide-eyes-updated.png")
+                      : require("../assets/images/open-eyes-updated.png")
                   }
                   style={styles.iconImage}
                 />

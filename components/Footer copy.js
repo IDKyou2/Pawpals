@@ -12,7 +12,7 @@ const Footer = ({
         <View style={styles.footer}>
             <TouchableOpacity style={styles.footerButton} onPress={onNavigateToHome}>
                 <Image
-                    source={require("../assets/images/Global-images/home-icon.png")}
+                    source={require("../assets/images/home-icon.png")}
                     style={styles.footerIcon}
                 />
             </TouchableOpacity>
@@ -24,7 +24,7 @@ const Footer = ({
                     <Text style={styles.notificationCount}>{newChatsCount}</Text>
                 )}
                 <Image
-                    source={require("../assets/images/Global-images/message-icon.png")}
+                    source={require("../assets/images/message-icon.png")}
                     style={styles.footerIcon}
                 />
             </TouchableOpacity>
@@ -36,7 +36,7 @@ const Footer = ({
                     <Text style={styles.notificationCount}>{newPostsCount}</Text>
                 )}
                 <Image
-                    source={require("../assets/images/Global-images/notification-icon.png")}
+                    source={require("../assets/images/notification-icon.png")}
                     style={styles.footerIcon}
                 />
             </TouchableOpacity>

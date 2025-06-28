@@ -47,7 +47,7 @@ const FoundDogForm = ({
   const locationiqKey = "pk.0ee70983b8d94b132991d9b76b73102e";
   const debounceTimeout = useRef(null);
 
-  const NEW_POSTS_API_URL = "http://192.168.1.6:5000/api/posts/new-posts-count";
+  const NEW_POSTS_API_URL = "http://192.168.1.3:5000/api/posts/new-posts-count";
 
   useEffect(() => {
     const fetchNewPostsCount = async () => {
@@ -236,7 +236,7 @@ const FoundDogForm = ({
   const handleBlur = () => {  // ------------------------------------------------- Close map suggestions container modal ------------------------------------------------ //
     delayBlur.current = setTimeout(() => {
       setIsTyping(false);
-    }, 3000); // seconds
+    }, 2000); // seconds
   };
 
   const handleFocus = () => {

@@ -18,9 +18,8 @@ import useChatCount from "./hooks/useChatCount";
 import NotificationModal from "./NotificationModal";
 import Footer from "./Footer";
 
-
 // Define API URL constants
-const BASE_URL = "http://192.168.1.6:5000";
+const BASE_URL = "http://192.168.1.3:5000";
 const LOST_DOG_API_URL = `${BASE_URL}/api/lostdog`;
 const FOUND_DOG_API_URL = `${BASE_URL}/api/founddog`;
 const NEW_POSTS_API_URL = `${BASE_URL}/api/posts/new-posts-count`;
@@ -28,6 +27,19 @@ const LOST_FOUND_API_URL = `${BASE_URL}/api/lostfound`;
 const MATCH_DOGS_API_URL = `${LOST_FOUND_API_URL}/match-dogs`;
 const BASE_API_URL = BASE_URL;
 const SOCKET_URL = BASE_URL;
+const formatDateTime = (dateString) => {
+  const date = new Date(dateString);
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  };
+  return date.toLocaleString("en-US", options);
+};
+
 
 const decodeJWT = (token) => {
   try {
@@ -73,7 +85,7 @@ const MatchPage = ({
   const newChatsCount = useChatCount();
   const [currentUserId, setCurrentUserId] = useState(null);
   const [showFullName1, setShowFullName1] = useState(false);
-  const [showFullName2, setShowFullName2] = useState(false);
+  const [showUserDetails, setShowUserDetails] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
@@ -385,17 +397,49 @@ const MatchPage = ({
       });
     }
   };
-
+  
+    const closeNewMatchModal = () => {           // -------------------------------------------------- Modal popup timer ------------------------------------------------- //
+      setIsNewMatchModalOpen(false);
+      setSelectedNewMatch(null);
+      if (selectedNewMatch) {
+        setTimeout(() => {
+          setSelectedNewMatch(selectedNewMatch);
+          setIsNewMatchModalOpen(true);
+        }, 3000); //seconds
+      }
+    };
+  
+  /*
   const closeNewMatchModal = () => {
     setIsNewMatchModalOpen(false);
     setSelectedNewMatch(null);
-    if (selectedNewMatch) {
+
+    // Find next potential match (not already shown)
+    const nextMatch = matches.find((match) => {
+      const dog1 = dogs.find((d) => d.petId === match.petId1);
+      const dog2 = dogs.find((d) => d.petId === match.petId2);
+
+      const isUserMatch =
+        dog1?.userId?._id === currentUserId || dog2?.userId?._id === currentUserId;
+
+      // You can enhance this with your own logic to avoid repeat matches
+      const isAlreadyShown =
+        selectedNewMatch &&
+        selectedNewMatch.petId1 === match.petId1 &&
+        selectedNewMatch.petId2 === match.petId2;
+
+      return isUserMatch && !isAlreadyShown;
+    });
+
+    if (nextMatch) {
       setTimeout(() => {
-        setSelectedNewMatch(selectedNewMatch);
-        setIsNewMatchModalOpen(true);
-      }, 4000);                     // -------------------------------------------------- Modal popup timer -------------------------------------------------
+        openNewMatchModal(nextMatch);
+      }, 2000); // wait 2 seconds before showing next match
+    } else {
+      console.log("No new match to show.");
     }
   };
+*/
 
   const handleReunite = () => {
     setIsConfirmationModalOpen(true);
@@ -438,7 +482,7 @@ const MatchPage = ({
                 match.petId2 !== selectedNewMatch.petId2
             )
           );
-          setTimeout(() => closeNewMatchModal(), 3000);
+          setTimeout(() => closeNewMatchModal(), 4000); //seconds
           setSuccessMessage("Dog reunited successfully! Kindly wait for the page to reload.");
           setTimeout(() => {
             setSuccessMessage(null);
@@ -617,6 +661,7 @@ const MatchPage = ({
                             onPress={() => openMatchModal(matchMessage.fullList)}
                           >
                             <Text style={styles.moreLink}>and more...</Text>
+
                           </TouchableOpacity>
                         </Text>
                       )}
@@ -703,7 +748,7 @@ const MatchPage = ({
                 <Text style={styles.newMatchModalText}>
                   Color Match: {selectedNewMatch.colorSimilarity}%
                 </Text>
-                {/* ---------------------------------------------------------------------- IMAGE -----------------------------------------------------*/}
+                {/* ---------------------------------------------------------------------- FIRST IMAGE -----------------------------------------------------*/}
                 <View style={styles.newMatchModalImages}>
                   <View style={styles.newMatchModalImageContainer}>
                     <Text style={styles.newMatchModalItem}>
@@ -721,16 +766,23 @@ const MatchPage = ({
                     />
                     <Text style={styles.newMatchModalText}>Posted by:</Text>
                     <View style={styles.nameContainer}>
-                      <Text style={styles.newMatchModalTexts}>
-                        {showFullName1
-                          ? selectedNewMatch.dog1?.userId?.fullName || "Unknown"
-                          : getFirstName(selectedNewMatch.dog1?.userId?.fullName)}
-                      </Text>
-                      {!showFullName1 && (
-                        <TouchableOpacity onPress={() => setShowFullName1(true)}>
-                          <Text style={styles.moreLink}>more</Text>
-                        </TouchableOpacity>
-                      )}
+                      <>
+                        <Text style={styles.newMatchModalTexts}>
+                          {selectedNewMatch.dog1?.userId?.fullName || "Unknown"}
+                        </Text>
+                        {/*
+                        <Text style={styles.newMatchModalTexts}>
+                          {showFullName1
+                            ? selectedNewMatch.dog1?.userId?.fullName || "Unknown"
+                            : getFirstName(selectedNewMatch.dog1?.userId?.fullName)}
+                        </Text>
+                        {!showFullName1 && (
+                          <TouchableOpacity onPress={() => setShowFullName1(true)}>
+                            <Text style={styles.moreLink}>more</Text>
+                          </TouchableOpacity>
+                        )}
+                        */}
+                      </>
                     </View>
                     <Text style={styles.newMatchModalText}>
                       Category: {selectedNewMatch.dog1?.category || "Unknown"}
@@ -755,28 +807,40 @@ const MatchPage = ({
                     <Text style={styles.newMatchModalText}>Posted by:</Text>
                     <View style={styles.nameContainer}>
                       <Text style={styles.newMatchModalTexts}>
-                        {showFullName2
+                        {showUserDetails
                           ? selectedNewMatch.dog2?.userId?.fullName || "Unknown"
                           : getFirstName(selectedNewMatch.dog2?.userId?.fullName)}
                       </Text>
-                      {!showFullName2 && (
-                        <TouchableOpacity onPress={() => setShowFullName2(true)}>
+                      {!showUserDetails && (
+                        <TouchableOpacity onPress={() => setShowUserDetails(true)}>
                           <Text style={styles.moreLink}>more</Text>
                         </TouchableOpacity>
                       )}
                     </View>
+                    {selectedNewMatch.dog2?.category === "Found" && showUserDetails && (
+                      <>
+                        <Text style={styles.newMatchModalText}>
+                          Contact:{" "}
+                          {selectedNewMatch.dog2?.userId?.contact || "Not available"}
+                        </Text>
+                        <Text style={styles.newMatchModalText}>
+                          Found at:{" "}
+                          {selectedNewMatch.dog2?.location || "Not available"}
+                        </Text>
+                        <Text style={styles.newMatchModalText}>
+                          Posted on:{" "}
+                          {selectedNewMatch.dog2?.createdAt
+                            ? formatDateTime(selectedNewMatch.dog2.createdAt)
+                            : "Not available"}
+                        </Text>
+                      </>
+                    )}
                     <Text style={styles.newMatchModalText}>
                       Category: {selectedNewMatch.dog2?.category || "Unknown"}
                     </Text>
-                    {selectedNewMatch.dog2?.category === "Found" && (
-                      <Text style={styles.newMatchModalText}>
-                        Contact:{" "}
-                        {selectedNewMatch.dog2?.userId?.contact || "Not available"}
-                      </Text>
-                    )}
                   </View>
                 </View>
-                <Text style={styles.isThisYourDogText}>Do you recognize this dog?</Text>
+                <Text style={styles.isThisYourDogText}>Is this your missing pet dog?</Text>
                 <View style={styles.newMatchModalButtons}>
                   <TouchableOpacity
                     style={styles.newMatchModalButton}
@@ -807,6 +871,8 @@ const MatchPage = ({
           <View style={styles.confirmationModalContent}>
             <Text style={styles.confirmationModalTitle}>
               Have you already reunited with your dog?
+            </Text>
+            <Text style={styles.confirmationModalMessage}>(You can also message the user by tapping the message icon on the screen below.)
             </Text>
             <View style={styles.confirmationModalButtons}>
               <TouchableOpacity
@@ -1367,9 +1433,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#6B4E31",
-    marginBottom: 15,
+    //marginBottom: 15,
     textAlign: "center",
     fontFamily: "Roboto",
+  },
+  confirmationModalMessage: {
+    fontSize: 13,
+    color: "#808080",
+    textAlign: "center",
+    fontFamily: "Roboto",
+    marginBottom: 5,
+    marginTop: 5,
   },
   confirmationModalButtons: {
     flexDirection: "row",
