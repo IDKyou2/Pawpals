@@ -120,7 +120,7 @@ const LoginPage = ({ onSignUpClick, onLoginSuccess, navigateToAdminDashBoard }) 
       <View style={styles.LoginPageContainer}>
         <View style={styles.loginLogo}>
           <Image
-            source={require("../assets/images/Logo-removebg.png")}
+            source={require("../assets/images/pawpals-new-logo.png")}
             style={styles.logoImage}
           />
         </View>

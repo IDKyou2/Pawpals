@@ -237,7 +237,7 @@ const RegisterForm = ({ onLoginClick }) => {
         <View style={styles.registerFormContainer}>
           <View style={styles.registerLogo}>
             <Image
-              source={require("../assets/images/Logo-removebg.png")}
+              source={require("../assets/images/pawpals-new-logo.png")}
               style={styles.logoImage}
             />
           </View>
