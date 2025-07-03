@@ -23,6 +23,7 @@ router.post("/register", async (req, res) => {
       $or: [{ username: username.toLowerCase() }, { email: email.toLowerCase() }],
     });
 
+
     if (existingUser) {
       return res.status(400).json({
         message: "Username or email already in use. Please choose another.",
@@ -86,7 +87,6 @@ router.post("/register", async (req, res) => {
         .status(400)
         .json({ message: "User already exists. Please use different credentials." });
     }
-
     return res
       .status(500)
       .json({ message: "Internal server error. Please try again later." });

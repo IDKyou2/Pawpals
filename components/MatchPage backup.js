@@ -405,7 +405,7 @@ const MatchPage = ({
       setTimeout(() => {
         setSelectedNewMatch(selectedNewMatch);
         setIsNewMatchModalOpen(true);
-      }, 6000); //seconds
+      }, 3000); //seconds
     }
   };
 
@@ -482,12 +482,12 @@ const MatchPage = ({
                 match.petId2 !== selectedNewMatch.petId2
             )
           );
-          setTimeout(() => closeNewMatchModal(), 3000); //seconds
+          setTimeout(() => closeNewMatchModal(), 4000); //seconds
           setSuccessMessage("Dog reunited successfully! Kindly wait for the page to reload.");
           setTimeout(() => {
             setSuccessMessage(null);
             onNavigateToSuggestionsForm?.();
-          }, 5000); //seconds
+          }, 8000);
         }
       } catch (error) {
         console.error("Error marking as reunited:", error);
@@ -726,7 +726,7 @@ const MatchPage = ({
           </View>
         </View>
       </Modal>
-
+      {/* */}
       <Modal
         visible={isNewMatchModalOpen}
         transparent

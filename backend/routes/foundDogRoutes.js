@@ -38,7 +38,8 @@ router.post("/founddog", async (req, res) => {
     const userId = decoded.userId;
 
     // Check for recent submission (within 5 minutes)
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    //const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const fiveMinutesAgo = new Date(Date.now() - 1 * 60 * 1000); //1 minute
     const recentSubmission = await FoundDog.findOne({
       userId,
       createdAt: { $gte: fiveMinutesAgo },
@@ -48,7 +49,7 @@ router.post("/founddog", async (req, res) => {
       return res
         .status(429)
         .json({
-          message: "Please wait before submitting another found dog report. You are trying to spam...",
+          message: "Please wait a minute before submitting another found dog report.",
         });
     }
 

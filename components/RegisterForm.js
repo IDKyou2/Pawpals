@@ -125,6 +125,7 @@ const RegisterForm = ({ onLoginClick }) => {
       !fullName ||
       !email ||
       !contact ||
+      !address ||
       !password ||
       !confirmPassword
     ) {
@@ -207,6 +208,8 @@ const RegisterForm = ({ onLoginClick }) => {
       try {
         const isTaken = await checkUsernameAvailability(username);
         if (isTaken) {
+          setUsernameError("Username already taken.");
+        } else if (username === "admin123") {
           setUsernameError("Username already taken.");
         } else {
           setUsernameError(""); // Clear error

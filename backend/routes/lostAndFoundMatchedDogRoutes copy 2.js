@@ -21,17 +21,64 @@ if (!fs.existsSync(foundDogsDir)) {
   fs.mkdirSync(foundDogsDir, { recursive: true });
 }
 
+// ----- Cosine Similarity using TensorFlow ---------- //
 const compareEmbeddings = (embedding1, embedding2) => {
   const similarity = tf.losses
     .cosineDistance(embedding1, embedding2, 0)
     .dataSync();
   return 1 - similarity;
+}; // If closer to 1 → more similar, converting it to percentage and consider it a match if ≥ 80%
+
+// ---------------------------------- NEW ----------------------
+const getAverageColor = (tensor) => {
+  if (!tensor || !tensor.shape) {
+    console.error("❌ Invalid tensor passed to getAverageColor:", tensor);
+    throw new Error("Invalid tensor for color comparison");
+  }
+
+  if (tensor.shape.length === 4) {
+    tensor = tensor.squeeze(); // Remove batch dim [1, h, w, 3] -> [h, w, 3]
+  }
+
+  const [height, width, channels] = tensor.shape;
+  const totalPixels = height * width;
+
+  const avgColor = tf.tidy(() => {
+    const reshaped = tensor.reshape([totalPixels, channels]); // [pixels, 3]
+    return reshaped.mean(0); // [R, G, B]
+  });
+
+  const colorArray = avgColor.arraySync();
+  avgColor.dispose();
+  return colorArray;
 };
 
-const compareColors = (dog1, dog2) => {
+const compareColors = (tensor1, tensor2) => {
+  if (!tensor1 || !tensor2 || !tensor1.shape || !tensor2.shape) {
+    console.error("❌ Invalid tensors passed to compareColors", { tensor1, tensor2 });
+    return 0; // Return 0% similarity if invalid
+  }
+
+  const color1 = getAverageColor(tensor1);
+  const color2 = getAverageColor(tensor2);
+
+  const distance = Math.sqrt(
+    Math.pow(color1[0] - color2[0], 2) +
+    Math.pow(color1[1] - color2[1], 2) +
+    Math.pow(color1[2] - color2[2], 2)
+  );
+
+  const maxDistance = Math.sqrt(3 * Math.pow(255, 2)); // max RGB distance
+  const similarity = 100 - ((distance / maxDistance) * 100);
+  return similarity.toFixed(2);
+};
+// ---------------------------------- NEW END ----------------------
+/*
+const compareColors = (dog1, dog2) => { // color similarity as an additional metric — this could be improved in the future to analyze actual fur color.
   const randomColorSimilarity = Math.random() * 20 + 80;
   return randomColorSimilarity.toFixed(2);
 };
+*/
 
 // Match Dogs Endpoint
 router.get("/match-dogs", async (req, res) => {
@@ -43,23 +90,23 @@ router.get("/match-dogs", async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.userId;
-
+    // ------------------------------- get lost dogs that haven’t been reunited. --------------------------------- //
     const lostDogs = await LostDog.find({ reunited: false }).populate(
       "userId",
       "fullName contact"
     );
+    // ------------------------------- get found dogs that haven’t been reunited. --------------------------------- //
     const foundDogs = await FoundDog.find({ reunited: false }).populate(
       "userId",
       "fullName contact"
     );
     const allDogs = [...lostDogs, ...foundDogs];
-
     const mobilenetModel = req.mobilenetModel;
     if (!mobilenetModel) {
       return res.status(500).json({ message: "MobileNet model not loaded" });
     }
-
     const supportedExtensions = [".jpeg", ".jpg", ".png"];
+    // --------------------- filter out any dogs that don’t have an image or have an unsupported format ------------------ //
     const dogsWithValidImages = allDogs.filter((dog) => {
       if (!dog.imagePath) return false;
       const extension = dog.imagePath.toLowerCase();
@@ -71,6 +118,7 @@ router.get("/match-dogs", async (req, res) => {
       dogsWithValidImages.length
     );
 
+    //----------------------------------- new ---------------------
     const imageData = await Promise.all(
       dogsWithValidImages.map(async (dog) => {
         try {
@@ -81,7 +129,7 @@ router.get("/match-dogs", async (req, res) => {
           }
 
           const imageBuffer = fs.readFileSync(imagePath);
-          const hash = md5(imageBuffer);
+          const hash = md5(imageBuffer); // generate a unique string from the raw image file data
 
           let imageTensor;
           const extension = dog.imagePath.toLowerCase().split(".").pop();
@@ -101,8 +149,50 @@ router.get("/match-dogs", async (req, res) => {
 
           const embedding = await mobilenetModel.infer(resizedTensor, true);
 
-          tf.dispose([imageTensor, resizedTensor]);
+          tf.dispose(imageTensor); //  Only dispose imageTensor now
 
+          return { hash, dog, embedding, resizedTensor }; // include resizedTensor in the return
+        } catch (error) {
+          console.error(`Error processing image for ${dog.petId}:`, error);
+          return null;
+        }
+      })
+    ).then((results) => results.filter((r) => r !== null));
+    //----------------------------------- new end ---------------------
+
+    /*
+    const imageData = await Promise.all(
+      dogsWithValidImages.map(async (dog) => {
+        try {
+          const imagePath = path.join(__dirname, "../../uploads", dog.imagePath.replace(/^\/uploads/, ""));
+          if (!fs.existsSync(imagePath)) {
+            console.error(`Image not found: ${imagePath}`);
+            return null;
+          }
+
+          const imageBuffer = fs.readFileSync(imagePath);
+          const hash = md5(imageBuffer); //generate a unique string from the raw image file data.
+
+          let imageTensor;
+          const extension = dog.imagePath.toLowerCase().split(".").pop();
+          if (extension === "jpg" || extension === "jpeg") {
+            // ------------- decode the image into a Tensor (a format AI understands) ------------------ //
+            imageTensor = tf.node.decodeJpeg(imageBuffer);
+          } else if (extension === "png") {
+            imageTensor = tf.node.decodePng(imageBuffer);
+          } else {
+            console.error(`Unsupported image format for ${dog.petId}`);
+            return null;
+          }
+          // ----------- resize it to 224×224 (standard input size required by the MobileNet model we’re using) ----------- //
+          const resizedTensor = tf.image
+            .resizeNearestNeighbor(imageTensor, [224, 224])
+            .toFloat()
+            .expandDims();
+          // ------ pass it into MobileNet — a pre-trained image classification model ------ //
+          const embedding = await mobilenetModel.infer(resizedTensor, true);
+
+          tf.dispose([imageTensor, resizedTensor]);
           return { hash, dog, embedding };
         } catch (error) {
           console.error(`Error processing image for ${dog.petId}:`, error);
@@ -110,6 +200,7 @@ router.get("/match-dogs", async (req, res) => {
         }
       })
     ).then((results) => results.filter((r) => r !== null));
+    */
 
     const dogMatches = [];
     for (let i = 0; i < imageData.length; i++) {
@@ -121,19 +212,32 @@ router.get("/match-dogs", async (req, res) => {
         const isLostDog = dog1.category === "Lost" || dog2.category === "Lost";
         const isFoundDog = dog1.category === "Found" || dog2.category === "Found";
 
-        if (
+        if ( // --------- skip image similarity calculations if two uploaded images are exactly identical ---------- //
           imageData[i].hash === imageData[j].hash &&
           !isSameUser &&
           isDifferentCategory &&
           isLostDog &&
           isFoundDog
         ) {
-          const colorSimilarity = compareColors(dog1, dog2);
+          // ----------------- new ---------------
+          const tensor1 = imageData[i]?.resizedTensor;
+          const tensor2 = imageData[j]?.resizedTensor;
+
+          let colorSimilarity = 0;
+          if (tensor1 && tensor2) {
+            colorSimilarity = compareColors(tensor1, tensor2);
+          } else {
+            console.warn("⚠️ Skipped color comparison due to missing tensor");
+          }
+          // ----------------- new end ---------------
+          //const colorSimilarity = compareColors(dog1, dog2);
+          const finalScorePercentage = (similarityPercentage * 0.7 + colorSimilarity * 0.3).toFixed(2);
           dogMatches.push({
             petId1: dog1.petId,
             petId2: dog2.petId,
-            similarityPercentage: 100,
+            similarityPercentage: parseFloat(similarityPercentage),
             colorSimilarity: parseFloat(colorSimilarity),
+            finalScorePercentage: parseFloat(finalScorePercentage), // make sure this is included
             isSelfMatch: false,
             dog1: {
               petId: dog1.petId,
@@ -166,12 +270,25 @@ router.get("/match-dogs", async (req, res) => {
           );
           const similarityPercentage = (similarity * 100).toFixed(2);
           if (similarityPercentage >= 80) {
-            const colorSimilarity = compareColors(dog1, dog2);
+            //const colorSimilarity = compareColors(dog1, dog2);
+            // ------------ new ------------
+            const tensor1 = imageData[i]?.resizedTensor;
+            const tensor2 = imageData[j]?.resizedTensor;
+
+            let colorSimilarity = 0;
+            if (tensor1 && tensor2) {
+              colorSimilarity = compareColors(tensor1, tensor2);
+            } else {
+              console.warn("⚠️ Skipped color comparison due to missing tensor");
+            }
+            const finalScorePercentage = (similarityPercentage * 0.7 + colorSimilarity * 0.3).toFixed(2);
+            // ------------ new end ----------
             dogMatches.push({
               petId1: dog1.petId,
               petId2: dog2.petId,
               similarityPercentage: parseFloat(similarityPercentage),
               colorSimilarity: parseFloat(colorSimilarity),
+              finalScorePercentage: parseFloat(finalScorePercentage), // ✅ add this
               isSelfMatch: false,
               dog1: {
                 petId: dog1.petId,
@@ -195,9 +312,18 @@ router.get("/match-dogs", async (req, res) => {
       }
     }
 
+    /*
     imageData.forEach((data) => {
       if (data.embedding) tf.dispose(data.embedding);
     });
+    */
+
+    // ---------------- new -----------------
+    imageData.forEach((data) => {
+      if (data.embedding) tf.dispose(data.embedding);
+      if (data.resizedTensor) tf.dispose(data.resizedTensor);
+    });
+    // ---------------- new end -----------------
 
     const userMatches = dogMatches.filter(
       (match) =>
@@ -347,8 +473,7 @@ router.post("/founddog", async (req, res) => {
     console.log("Decoded Token:", decoded);
     const userId = decoded.userId;
 
-    //const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const fiveMinutesAgo = new Date(Date.now() - 1 * 60 * 1000); //1 minute
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const recentSubmission = await FoundDog.findOne({
       userId,
       createdAt: { $gte: fiveMinutesAgo },
@@ -358,7 +483,7 @@ router.post("/founddog", async (req, res) => {
       return res
         .status(429)
         .json({
-          message: "Please wait a minute before submitting another found dog report.",
+          message: "Please wait for a few minutes before submitting another report.",
         });
     }
 
@@ -429,7 +554,6 @@ router.post("/founddog", async (req, res) => {
 
     const savedFoundDog = await foundDogProfile.save();
     console.log("Saved Found Dog:", savedFoundDog);
-
     req.io.emit("newFoundDog", savedFoundDog);
 
     res.status(201).json({

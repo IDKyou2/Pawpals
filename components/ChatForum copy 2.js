@@ -9,7 +9,6 @@ import {
   ScrollView,
   TextInput,
   KeyboardAvoidingView,
-  SafeAreaView,
   Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -30,7 +29,6 @@ const ChatForum = ({
   onNavigateToMatchedPage,
   onLogout,
   onNavigateToPrivateChat,
-
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -43,12 +41,8 @@ const ChatForum = ({
   const [showAllUsers, setShowAllUsers] = useState(false);
   const scrollViewRef = useRef(null);
   const socketRef = useRef(null);
+  const newChatsCount = useChatCount();
 
-  const [newChatsCount, setNewChatsCount] = useState(0);
-
-  const resetChatsCount = () => {
-    setNewChatsCount(0); // ✅ simple reset
-  };
   useEffect(() => {
     const fetchUserDataAndMessages = async () => {
       try {
@@ -125,14 +119,7 @@ const ChatForum = ({
               profilePic: msg.profilePic,
             }))
           );
-          setNewChatsCount(count); // update badge count
         });
-
-        // Then reset when user visits Chat Forum:
-        const handleMessageClick = () => {
-          setNewChatsCount(0); // reset badge count visually
-          // navigate to forum...
-        };
 
         socketRef.current.on("message_error", (error) => {
           console.error("Message error from server:", error);
@@ -221,9 +208,13 @@ const ChatForum = ({
   };
 
   const displayedUsers = showAllUsers ? users : users.slice(0, 4);
+
   return (
-    <View style={{ flex: 1 }}>
-      {/* Header */}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}
+    >
       <View style={styles.header}>
         <Text style={styles.headerText}>PETPALS</Text>
         <TouchableOpacity onPress={toggleMenu} style={styles.hamburgerButton}>
@@ -234,6 +225,34 @@ const ChatForum = ({
           </View>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={menuOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={toggleMenu}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={toggleMenu}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.menuItem} onPress={handleHomeClick}>
+              <Text style={styles.menuText}>Home</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleProfileClick}
+            >
+              <Text style={styles.menuText}>Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleLogoutClick}
+            >
+              <Text style={styles.menuText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       <View style={styles.navBar}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <TouchableOpacity
@@ -262,137 +281,104 @@ const ChatForum = ({
           </TouchableOpacity>
         </ScrollView>
       </View>
-      {/* Main chat + input area */}
-      <SafeAreaView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={100}
-      ><View style={styles.mainContent}>
-          <ScrollView
-            contentContainerStyle={styles.chatContent}
-            ref={scrollViewRef}
-            showsVerticalScrollIndicator={false}
-          >
-            {messages.length === 0 ? (
-              <View style={styles.noChatsContainer}>
-                <Text style={styles.noChatsText}>No chats yet.</Text>
-              </View>
-            ) : (
-              messages.map((message) => (
-                <View
-                  key={message.id}
-                  style={[
-                    styles.messageContainer,
-                    message.isSent
-                      ? styles.sentMessageContainer
-                      : styles.receivedMessageContainer,
-                  ]}
-                >
-                  {!message.isSent && (
-                    <Image
-                      source={
-                        message.profilePic
-                          ? { uri: `${SERVER_URL}${message.profilePic}` }
-                          : require("../assets/images/default-user.png")
-                      }
-                      style={styles.userAvatar}
-                    />
-                  )}
-                  <View
-                    style={[
-                      styles.messageBubble,
-                      message.isSent ? styles.sentMessage : styles.receivedMessage,
-                    ]}
-                  >
-                    <Text style={styles.messageSender}>{message.from}</Text>
-                    <Text
-                      style={[
-                        message.isSent ? styles.messageSenderText : styles.messageText,
-                      ]}
-                    >
-                      {message.text}
-                    </Text>
-                    <Text style={styles.messageTimestamp}>
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Text>
-                  </View>
-                  {message.isSent && (
-                    <Image
-                      source={
-                        message.profilePic
-                          ? { uri: `${SERVER_URL}${message.profilePic}` }
-                          : require("../assets/images/default-user.png")
-                      }
-                      style={styles.userAvatar}
-                    />
-                  )}
-                </View>
-              ))
-            )}
-          </ScrollView>
-          {/* ------------------------------------ DISPLAY USERS SIDE ---------------------*/}
-          <View style={styles.userList}>
-            <ScrollView showsVerticalScrollIndicator={true}>
-              {displayedUsers.map((user) => (
-                <TouchableOpacity
-                  key={user.fullName}
-                  style={styles.userItem}
-                  onPress={() => handleUserClick(user)}
-                >
+
+      <View style={styles.mainContent}>
+        <ScrollView
+          contentContainerStyle={styles.chatContent}
+          ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
+        >
+          {messages.length === 0 ? (
+            <View style={styles.noChatsContainer}>
+              <Text style={styles.noChatsText}>No chats yet.</Text>
+            </View>
+          ) : (
+            messages.map((message) => (
+              <View
+                key={message.id}
+                style={[
+                  styles.messageContainer,
+                  message.isSent
+                    ? styles.sentMessageContainer
+                    : styles.receivedMessageContainer,
+                ]}
+              >
+                {!message.isSent && (
                   <Image
                     source={
-                      user.profilePic
-                        ? { uri: `${SERVER_URL}${user.profilePic}` }
+                      message.profilePic
+                        ? { uri: `${SERVER_URL}${message.profilePic}` }
                         : require("../assets/images/default-user.png")
                     }
-                    style={styles.userListAvatar}
+                    style={styles.userAvatar}
                   />
-                  <Text style={styles.userName}>{user.fullName}</Text>
-                </TouchableOpacity>
-              ))}
-              {users.length > 4 && !showAllUsers && (
-                <TouchableOpacity
-                  style={styles.moreButton}
-                  onPress={() => setShowAllUsers(true)}
+                )}
+                <View
+                  style={[
+                    styles.messageBubble,
+                    message.isSent ? styles.sentMessage : styles.receivedMessage,
+                  ]}
                 >
-                  <Text style={styles.moreText}>More</Text>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
-          </View>
-        </View>
+                  <Text style={styles.messageSender}>{message.from}</Text>
+                  <Text
+                    style={[
+                      message.isSent ? styles.messageSenderText : styles.messageText,
+                    ]}
+                  >
+                    {message.text}
+                  </Text>
+                  <Text style={styles.messageTimestamp}>
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </Text>
+                </View>
+                {message.isSent && (
+                  <Image
+                    source={
+                      message.profilePic
+                        ? { uri: `${SERVER_URL}${message.profilePic}` }
+                        : require("../assets/images/default-user.png")
+                    }
+                    style={styles.userAvatar}
+                  />
+                )}
+              </View>
+            ))
+          )}
+        </ScrollView>
 
-        <Modal
-          visible={menuOpen}
-          transparent
-          animationType="slide"
-          onRequestClose={toggleMenu}
-        >
-          <TouchableOpacity style={styles.modalOverlay} onPress={toggleMenu}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity style={styles.menuItem} onPress={handleHomeClick}>
-                <Text style={styles.menuText}>Home</Text>
-              </TouchableOpacity>
+        <View style={styles.userList}>
+          <ScrollView showsVerticalScrollIndicator={true}>
+            {displayedUsers.map((user) => (
               <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleProfileClick}
+                key={user.fullName}
+                style={styles.userItem}
+                onPress={() => handleUserClick(user)}
               >
-                <Text style={styles.menuText}>Profile</Text>
+                <Image
+                  source={
+                    user.profilePic
+                      ? { uri: `${SERVER_URL}${user.profilePic}` }
+                      : require("../assets/images/default-user.png")
+                  }
+                  style={styles.userListAvatar}
+                />
+                <Text style={styles.userName}>{user.fullName}</Text>
               </TouchableOpacity>
+            ))}
+            {users.length > 4 && !showAllUsers && (
               <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleLogoutClick}
+                style={styles.moreButton}
+                onPress={() => setShowAllUsers(true)}
               >
-                <Text style={styles.menuText}>Logout</Text>
+                <Text style={styles.moreText}>More</Text>
               </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </Modal>
-        {/* Your ScrollView and input area here */}
-      </SafeAreaView>
+            )}
+          </ScrollView>
+        </View>
+      </View>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.messageInput}
@@ -407,29 +393,25 @@ const ChatForum = ({
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
+      {/* */}
       <Footer
         onNavigateToHome={handleHomeClick}
         onNavigateToChatForum={handleMessageClick}
         handleNotificationClick={handleNotificationClick}
         newChatsCount={newChatsCount}
         newPostsCount={newPostsCount}
-
-        resetChatsCount={resetChatsCount}
-
-
       />
-    </View>
-  );
 
+      <NotificationModal isModalOpen={isModalOpen} closeModal={closeModal} />
+
+    </KeyboardAvoidingView>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     //backgroundColor: '#F5F5F5',
-  },
-  space: {
-    marginBottom: 0,
   },
   header: {
     flexDirection: 'row',
@@ -534,12 +516,14 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#F5F5F5',
+    //borderWidth: 1,
+    //borderColor: '#FFD700',
   },
   chatContent: {
     flexGrow: 1,
-    padding: 5,
+    padding: 20,
     //paddingBottom: 100,
-    paddingBottom: 10,
+    paddingBottom: 50,
   },
   noChatsContainer: {
     flex: 1,
@@ -553,11 +537,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto',
     fontWeight: '500',
   },
-
+  userList: {
+    width: 130,
+    backgroundColor: '#FFF',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderLeftWidth: 1,
+    borderLeftColor: 'rgba(0, 0, 0, 0.1)',
+    maxHeight: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: -4, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
+  },
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
     borderRadius: 10,
     backgroundColor: '#F9F9F9',
     marginBottom: 8,
@@ -575,27 +572,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FFD700',
   },
-  userList: {
-    width: 120,
-    backgroundColor: '#FFF',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderLeftWidth: .5,
-    borderLeftColor: 'rgba(0, 0, 0, 0.1)',
-    maxHeight: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: -4, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
   userName: {
     fontSize: 14,
     color: '#6B4E31',
     fontWeight: '500',
     fontFamily: 'Roboto',
     textTransform: 'capitalize',
-    flexShrink: 2,
+    flexShrink: 1,
   },
   moreButton: {
     padding: 10,
@@ -683,6 +666,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
+    //marginTop: 100,
+    //paddingBottom: Platform.OS === 'android' ? 10 : 20,
   },
   messageInput: {
     flex: 1,

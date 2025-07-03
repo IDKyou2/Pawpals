@@ -206,8 +206,8 @@ const FoundDogFormConfirmation = ({
         } else {
           console.error("Navigation functions are not defined!");
         }
-        Alert.alert("Success", "Found dog reported successfully! Thank you for helping and giving them a chance to reunite with their owners.");
-        console.log("Success", "Found dog reported successfully.");
+        Alert.alert("Report submitted", "Found dog reported successfully! Thank you for your help.");
+        console.log("Report submitted", "Found dog reported successfully.");
       }
     } catch (error) {
       console.error("Detailed error reporting found dog:", {
